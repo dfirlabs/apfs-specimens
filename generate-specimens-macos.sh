@@ -96,6 +96,14 @@ create_test_file_entries()
 		# Create a file that uses HFS+ compression (decmpfs) compression method 8
 		ditto --nohfsCompression LICENSE ${MOUNT_POINT}/testdir1/compressed4
 		${AFSCTOOL} -c -T LZVN ${MOUNT_POINT}/testdir1/compressed4
+
+		# Create a file that uses HFS+ compression (decmpfs) compression method 11
+		# echo "My compressed file" > ${MOUNT_POINT}/testdir1/compressed5
+		# ${AFSCTOOL} -c -T LZFSE ${MOUNT_POINT}/testdir1/compressed5
+
+		# Create a file that uses HFS+ compression (decmpfs) compression method 12
+		# ditto --nohfsCompression LICENSE ${MOUNT_POINT}/testdir1/compressed6
+		# ${AFSCTOOL} -c -T LZFSE ${MOUNT_POINT}/testdir1/compressed6
 	else
 		ditto --hfsCompression LICENSE ${MOUNT_POINT}/testdir1/compressed1
 	fi
@@ -130,25 +138,30 @@ DEVICE_NUMBER=`diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/d
 CONTAINER_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 1 ));
 VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ));
 
+# For older versions of hdiutil:
+
 # Create raw disk image with APFS container
-IMAGE_NAME="apfs_container";
-IMAGE_SIZE="4M";
+# IMAGE_NAME="apfs_container";
+# IMAGE_SIZE="4M";
 
-hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
 
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
+# hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
 
 # Create raw disk image with APFS container and single case-insensitive volume
 IMAGE_NAME="apfs_single_volume";
 IMAGE_SIZE="4M";
 
-hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+hdiutil create -fs 'APFS' -size ${IMAGE_SIZE} -type UDIF -volname SingleVolume ${SPECIMENS_PATH}/${IMAGE_NAME};
+hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
-diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume;
+# For older versions of hdiutil:
+# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume;
 
 create_test_file_entries "/Volumes/SingleVolume";
 
@@ -160,11 +173,14 @@ hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
 IMAGE_NAME="apfs_single_volume_case_sensitive";
 IMAGE_SIZE="4M";
 
-hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+hdiutil create -fs 'APFS' -size ${IMAGE_SIZE} -type UDIF -volname SingleVolume ${SPECIMENS_PATH}/${IMAGE_NAME};
+hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
-diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "Case-sensitive APFS" SingleVolume;
+# For older versions of hdiutil:
+# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "Case-sensitive APFS" SingleVolume;
 
 create_test_file_entries "/Volumes/SingleVolume";
 
@@ -177,11 +193,14 @@ hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
 IMAGE_NAME="apfs_single_volume_with_role_preboot";
 IMAGE_SIZE="4M";
 
-hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+hdiutil create -fs 'APFS' -size ${IMAGE_SIZE} -type UDIF -volname SingleVolume ${SPECIMENS_PATH}/${IMAGE_NAME};
+hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
-diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -role B;
+# For older versions of hdiutil:
+# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -role B;
 
 create_test_file_entries "/Volumes/SingleVolume";
 
@@ -194,11 +213,14 @@ hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
 IMAGE_NAME="apfs_single_volume_with_role_recovery";
 IMAGE_SIZE="4M";
 
-hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+hdiutil create -fs 'APFS' -size ${IMAGE_SIZE} -type UDIF -volname SingleVolume ${SPECIMENS_PATH}/${IMAGE_NAME};
+hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
-diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -role R;
+# For older versions of hdiutil:
+# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -role R;
 
 create_test_file_entries "/Volumes/SingleVolume";
 
@@ -211,11 +233,14 @@ hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
 IMAGE_NAME="apfs_single_volume_with_role_vm";
 IMAGE_SIZE="4M";
 
-hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+hdiutil create -fs 'APFS' -size ${IMAGE_SIZE} -type UDIF -volname SingleVolume ${SPECIMENS_PATH}/${IMAGE_NAME};
+hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
-diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -role V;
+# For older versions of hdiutil:
+# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -role V;
 
 create_test_file_entries "/Volumes/SingleVolume";
 
@@ -228,11 +253,14 @@ hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
 IMAGE_NAME="apfs_single_volume_encrypted";
 IMAGE_SIZE="4M";
 
-hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+hdiutil create -fs 'APFS' -size ${IMAGE_SIZE} -type UDIF -volname SingleVolume ${SPECIMENS_PATH}/${IMAGE_NAME};
+hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
-diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -passphrase test;
+# For older versions of hdiutil:
+# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -passphrase test;
 
 create_test_file_entries "/Volumes/SingleVolume";
 
@@ -256,11 +284,14 @@ do
 	# Create raw disk image with APFS container and single case-insensitive file system
 	IMAGE_NAME="apfs_single_volume_${NUMBER_OF_FILES}_files";
 
-	hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-	hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-	diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+	hdiutil create -fs 'APFS' -size ${IMAGE_SIZE} -type UDIF -volname SingleVolume ${SPECIMENS_PATH}/${IMAGE_NAME};
+	hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
-	diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume;
+	# For older versions of hdiutil:
+	# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+	# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+	# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+	# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume;
 
 	create_test_file_entries "/Volumes/SingleVolume";
 
@@ -282,11 +313,14 @@ do
 	# Create raw disk image with APFS container and single case-sensitive file system
 	IMAGE_NAME="apfs_single_volume_${NUMBER_OF_FILES}_files_case_sensitive";
 
-	hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
-	hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
-	diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+	hdiutil create -fs 'APFS' -size ${IMAGE_SIZE} -type UDIF -volname SingleVolume ${SPECIMENS_PATH}/${IMAGE_NAME};
+	hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
-	diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "Case-sensitive APFS" SingleVolume;
+	# For older versions of hdiutil:
+	# hdiutil create -size ${IMAGE_SIZE} -type UDIF ${SPECIMENS_PATH}/${IMAGE_NAME};
+	# hdiutil attach -nomount ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
+	# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1;
+	# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "Case-sensitive APFS" SingleVolume;
 
 	create_test_file_entries "/Volumes/SingleVolume";
 
