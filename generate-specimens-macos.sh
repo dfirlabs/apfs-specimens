@@ -138,7 +138,24 @@ create_test_file_entries()
 
 	# Create a character device file
 	# Need to run mknod with sudo otherwise it errors with: Operation not permitted
-	sudo mknod ${MOUNT_POINT}/testdir1/chardev1 c 13 68
+	sudo mknod -F native ${MOUNT_POINT}/testdir1/chardev1 c 13 68
+
+	sudo mknod -F 386bsd ${MOUNT_POINT}/testdir1/chardev1-386bsd c 1 2
+	sudo mknod -F 4bsd ${MOUNT_POINT}/testdir1/chardev1-4bsd c 1 2
+	sudo mknod -F bsdos ${MOUNT_POINT}/testdir1/chardev1-bsdos c 1 2
+	sudo mknod -F bsdos ${MOUNT_POINT}/testdir1/chardev2-bsdos c 3 4 5
+	sudo mknod -F freebsd ${MOUNT_POINT}/testdir1/chardev1-freebsd c 1 2
+	sudo mknod -F hpux ${MOUNT_POINT}/testdir1/chardev1-hpux c 1 2
+	sudo mknod -F isc ${MOUNT_POINT}/testdir1/chardev1-isc c 1 2
+	sudo mknod -F linux ${MOUNT_POINT}/testdir1/chardev1-linux c 1 2
+	sudo mknod -F netbsd ${MOUNT_POINT}/testdir1/chardev1-netbsd c 1 2
+	sudo mknod -F osf1 ${MOUNT_POINT}/testdir1/chardev1-osf1 c 1 2
+	sudo mknod -F sco ${MOUNT_POINT}/testdir1/chardev1-sco c 1 2
+	sudo mknod -F solaris ${MOUNT_POINT}/testdir1/chardev1-solaris c 1 2
+	sudo mknod -F sunos ${MOUNT_POINT}/testdir1/chardev1-sunos c 1 2
+	sudo mknod -F svr3 ${MOUNT_POINT}/testdir1/chardev1-svr3 c 1 2
+	sudo mknod -F svr4 ${MOUNT_POINT}/testdir1/chardev1-svr4 c 1 2
+	sudo mknod -F ultrix ${MOUNT_POINT}/testdir1/chardev1-ultrix c 1 2
 
 	# Create a whiteout (node) file
 	# Need to run mknod with sudo otherwise it errors with: Operation not permitted
@@ -159,9 +176,9 @@ MACOS_VERSION=`sw_vers -productVersion`;
 SHORT_VERSION=`echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*[.][0-9][0-9]*\).*$/\1/'`;
 
 # Note that versions of Mac OS before 10.13 do not support "sort -V"
-MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sort -n | head -n 1`;
+MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`;
 
-if test "${MINIMUM_VERSION}" != "10.13";
+if test "${MINIMUM_VERSION}" != "1013";
 then
 	echo "Unsupported MacOS version: ${MACOS_VERSION}";
 
