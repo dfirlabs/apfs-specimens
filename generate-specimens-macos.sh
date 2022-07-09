@@ -174,15 +174,21 @@ assert_availability_binary sw_vers;
 
 MACOS_VERSION=`sw_vers -productVersion`;
 SHORT_VERSION=`echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*[.][0-9][0-9]*\).*$/\1/'`;
+MAJOR_VERSION=`echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*\).*$/\1/'`;
 
 # Note that versions of Mac OS before 10.13 do not support "sort -V"
-MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`;
+MAXIMUM_VERSION=`echo "${MAJOR_VERSION} 10" | tr ' ' '\n' | sed 's/[.]//' | sort -rn | head -n 1`;
 
-if test "${MINIMUM_VERSION}" != "1013";
+if test "${MAXIMUM_VERSION}" == "10";
 then
-	echo "Unsupported MacOS version: ${MACOS_VERSION}";
+	MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`;
 
-	exit ${EXIT_FAILURE};
+	if test "${MINIMUM_VERSION}" != "1013";
+	then
+		echo "Unsupported MacOS version: ${MACOS_VERSION}";
+
+		exit ${EXIT_FAILURE};
+	fi
 fi
 
 SPECIMENS_PATH="specimens/${MACOS_VERSION}";
