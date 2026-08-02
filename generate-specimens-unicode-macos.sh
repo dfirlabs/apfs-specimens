@@ -77,10 +77,10 @@ mkdir -p ${SPECIMENS_PATH};
 
 set -e;
 
-DEVICE_NUMBER=`diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/disk??;s? .*$??'`;
+# DEVICE_NUMBER=`diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/disk??;s? .*$??'`;
 
-CONTAINER_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 1 ));
-VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ));
+# CONTAINER_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 1 ));
+# VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ));
 
 # Create raw disk image with APFS container and single case-insensitive volume and files for individual Unicode characters
 IMAGE_NAME="apfs_single_volume_unicode_files";
@@ -97,9 +97,7 @@ hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
 create_test_file_entries_unicode "/Volumes/SingleVolume";
 
-# hdiutil detach disk${VOLUME_DEVICE_NUMBER};
-
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
+detach_image "${IMAGE_FILE}.dmg"
 
 # Create raw disk image with APFS container and single case-sensitive volume and files for individual Unicode characters
 IMAGE_NAME="apfs_single_volume_unicode_files_case_sensitive";
@@ -116,9 +114,7 @@ hdiutil attach ${SPECIMENS_PATH}/${IMAGE_NAME}.dmg;
 
 create_test_file_entries_unicode "/Volumes/SingleVolume";
 
-# hdiutil detach disk${VOLUME_DEVICE_NUMBER};
-
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER};
+detach_image "${IMAGE_FILE}.dmg"
 
 exit ${EXIT_SUCCESS};
 

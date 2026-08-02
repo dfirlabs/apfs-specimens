@@ -50,10 +50,10 @@ mkdir -p ${SPECIMENS_PATH}
 
 set -e
 
-DEVICE_NUMBER=`diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/disk??;s? .*$??'`
+# DEVICE_NUMBER=`diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/disk??;s? .*$??'`
 
-CONTAINER_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 1 ))
-VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ))
+# CONTAINER_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 1 ))
+# VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ))
 
 for NUMBER_OF_FILES in 100 1000 10000 100000
 do
@@ -94,12 +94,7 @@ do
 		fi
 	done
 
-	# hdiutil detach disk${VOLUME_DEVICE_NUMBER}
-
-	# Sleep to prevent "resource busy" warning.
-	sleep 3
-
-	hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+	detach_image "${IMAGE_FILE}.dmg"
 
 	IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume_${NUMBER_OF_FILES}_files_case_sensitive"
 
@@ -126,12 +121,7 @@ do
 		fi
 	done
 
-	# hdiutil detach disk${VOLUME_DEVICE_NUMBER}
-
-	# Sleep to prevent "resource busy" warning.
-	sleep 3
-
-	hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+	detach_image "${IMAGE_FILE}.dmg"
 done
 
 exit ${EXIT_SUCCESS}

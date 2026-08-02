@@ -50,10 +50,10 @@ mkdir -p ${SPECIMENS_PATH}
 
 set -e
 
-DEVICE_NUMBER=`diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/disk??;s? .*$??'`
+# DEVICE_NUMBER=`diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/disk??;s? .*$??'`
 
-CONTAINER_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 1 ))
-VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ))
+# CONTAINER_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 1 ))
+# VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ))
 
 # For older versions of hdiutil:
 
@@ -64,7 +64,7 @@ VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ))
 # hdiutil attach -nomount "${IMAGE_FILE}.dmg"
 # diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1
 
-# hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+# detach_image "${IMAGE_FILE}.dmg"
 
 # Create raw disk image with APFS container and single case-insensitive volume
 IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume"
@@ -80,12 +80,7 @@ hdiutil attach "${IMAGE_FILE}.dmg"
 
 create_test_file_entries "/Volumes/SingleVolume"
 
-# hdiutil detach disk${VOLUME_DEVICE_NUMBER}
-
-# Sleep to prevent "resource busy" warning.
-sleep 3
-
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+detach_image "${IMAGE_FILE}.dmg"
 
 # Create raw disk image with APFS container and single case-sensitive volume
 IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume_case_sensitive"
@@ -101,12 +96,7 @@ hdiutil attach "${IMAGE_FILE}.dmg"
 
 create_test_file_entries "/Volumes/SingleVolume"
 
-# hdiutil detach disk${VOLUME_DEVICE_NUMBER}
-
-# Sleep to prevent "resource busy" warning.
-sleep 3
-
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+detach_image "${IMAGE_FILE}.dmg"
 
 # Create raw disk image with APFS container and single case-insensitive volume and role preboot
 
@@ -123,12 +113,7 @@ hdiutil attach "${IMAGE_FILE}.dmg"
 
 create_test_file_entries "/Volumes/SingleVolume"
 
-# hdiutil detach disk${VOLUME_DEVICE_NUMBER}
-
-# Sleep to prevent "resource busy" warning.
-sleep 3
-
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+detach_image "${IMAGE_FILE}.dmg"
 
 # Create raw disk image with APFS container and single case-insensitive volume and role recovery
 
@@ -145,12 +130,7 @@ hdiutil attach "${IMAGE_FILE}.dmg"
 
 create_test_file_entries "/Volumes/SingleVolume"
 
-# hdiutil detach disk${VOLUME_DEVICE_NUMBER}
-
-# Sleep to prevent "resource busy" warning.
-sleep 3
-
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+detach_image "${IMAGE_FILE}.dmg"
 
 # Create raw disk image with APFS container and single case-insensitive volume and role VM
 
@@ -167,12 +147,7 @@ hdiutil attach "${IMAGE_FILE}.dmg"
 
 create_test_file_entries "/Volumes/SingleVolume"
 
-# hdiutil detach disk${VOLUME_DEVICE_NUMBER}
-
-# Sleep to prevent "resource busy" warning.
-sleep 3
-
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+detach_image "${IMAGE_FILE}.dmg"
 
 # Create raw disk image with APFS container and single encrypted volume
 
@@ -189,12 +164,7 @@ hdiutil attach "${IMAGE_FILE}.dmg"
 
 create_test_file_entries "/Volumes/SingleVolume"
 
-# hdiutil detach disk${VOLUME_DEVICE_NUMBER}
-
-# Sleep to prevent "resource busy" warning.
-sleep 3
-
-hdiutil detach disk${CONTAINER_DEVICE_NUMBER}
+detach_image "${IMAGE_FILE}.dmg"
 
 # TODO: Create raw disk image with APFS container and multiple volumes
 
