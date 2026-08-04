@@ -36,8 +36,11 @@ create_test_file_entries()
     # Create a directory
     mkdir ${MOUNT_POINT}/testdir1
 
-    # Create a file
+    # Create a file that can be stored as inline data
     echo "My file" > ${MOUNT_POINT}/testdir1/testfile1
+
+    # Create a file that cannot be stored as inline data
+    cp LICENSE ${MOUNT_POINT}/testdir1/TestFile2
 
     # Create a hard link to a file
     ln ${MOUNT_POINT}/testdir1/testfile1 ${MOUNT_POINT}/file_hardlink1

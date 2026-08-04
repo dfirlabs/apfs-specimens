@@ -27,23 +27,23 @@ MAXIMUM_VERSION=`echo "${MAJOR_VERSION} 10" | tr ' ' '\n' | sed 's/[.]//' | sort
 
 if test "${MAXIMUM_VERSION}" == "10"
 then
-	MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`
+    MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`
 
-	if test "${MINIMUM_VERSION}" != "1013"
-	then
-		echo "Unsupported MacOS version: ${MACOS_VERSION}"
+    if test "${MINIMUM_VERSION}" != "1013"
+    then
+        echo "Unsupported MacOS version: ${MACOS_VERSION}"
 
-		exit ${EXIT_FAILURE}
-	fi
+        exit ${EXIT_FAILURE}
+    fi
 fi
 
 SPECIMENS_PATH="specimens/${MACOS_VERSION}-many-attributes"
 
 if test -d ${SPECIMENS_PATH}
 then
-	echo "Specimens directory: ${SPECIMENS_PATH} already exists."
+    echo "Specimens directory: ${SPECIMENS_PATH} already exists."
 
-	exit ${EXIT_FAILURE}
+    exit ${EXIT_FAILURE}
 fi
 
 mkdir -p ${SPECIMENS_PATH}
@@ -57,53 +57,53 @@ set -e
 
 for NUMBER_OF_ATTRIBUTES in 100
 do
-	IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume_${NUMBER_OF_ATTRIBUTES}_attributes"
+    IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume_${NUMBER_OF_ATTRIBUTES}_attributes"
 
-	echo "Creating: case-insensitive APFS; with: ${NUMBER_OF_ATTRIBUTES} attributes"
-	hdiutil create -fs 'APFS' -size "4M" -type UDIF -volname SingleVolume "${IMAGE_FILE}"
-	hdiutil attach "${IMAGE_FILE}.dmg"
+    echo "Creating: case-insensitive APFS; with: ${NUMBER_OF_ATTRIBUTES} attributes"
+    hdiutil create -fs 'APFS' -size "4M" -type UDIF -volname SingleVolume "${IMAGE_FILE}"
+    hdiutil attach "${IMAGE_FILE}.dmg"
 
-	# For older versions of hdiutil:
-	# hdiutil create -size "4M" -type UDIF "${IMAGE_FILE}"
-	# hdiutil attach -nomount "${IMAGE_FILE}.dmg"
-	# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1
-	# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume
+    # For older versions of hdiutil:
+    # hdiutil create -size "4M" -type UDIF "${IMAGE_FILE}"
+    # hdiutil attach -nomount "${IMAGE_FILE}.dmg"
+    # diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1
+    # diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume
 
-	create_test_file_entries "/Volumes/SingleVolume"
+    create_test_file_entries "/Volumes/SingleVolume"
 
-	# Create additional attributes
-	touch /Volumes/SingleVolume/testdir1/many_xattrs
+    # Create additional attributes
+    touch /Volumes/SingleVolume/testdir1/many_xattrs
 
-	for NUMBER in `seq 1 ${NUMBER_OF_ATTRIBUTES}`
-	do
-		xattr -w "myxattr${NUMBER}" "Extended attribute: ${NUMBER}" /Volumes/SingleVolume/testdir1/many_xattrs
-	done
+    for NUMBER in `seq 1 ${NUMBER_OF_ATTRIBUTES}`
+    do
+        xattr -w "myxattr${NUMBER}" "Extended attribute: ${NUMBER}" /Volumes/SingleVolume/testdir1/many_xattrs
+    done
 
-	detach_image "${IMAGE_FILE}.dmg"
+    detach_image "${IMAGE_FILE}.dmg"
 
-	IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume_${NUMBER_OF_ATTRIBUTES}_attributes_case_sensitive"
+    IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume_${NUMBER_OF_ATTRIBUTES}_attributes_case_sensitive"
 
-	echo "Creating: case-sensitive APFS; with: ${NUMBER_OF_ATTRIBUTES} attributes"
-	hdiutil create -fs 'APFS' -size "4M" -type UDIF -volname SingleVolume "${IMAGE_FILE}"
-	hdiutil attach "${IMAGE_FILE}.dmg"
+    echo "Creating: case-sensitive APFS; with: ${NUMBER_OF_ATTRIBUTES} attributes"
+    hdiutil create -fs 'APFS' -size "4M" -type UDIF -volname SingleVolume "${IMAGE_FILE}"
+    hdiutil attach "${IMAGE_FILE}.dmg"
 
-	# For older versions of hdiutil:
-	# hdiutil create -size "4M" -type UDIF "${IMAGE_FILE}"
-	# hdiutil attach -nomount "${IMAGE_FILE}.dmg"
-	# diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1
-	# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "Case-sensitive APFS" SingleVolume
+    # For older versions of hdiutil:
+    # hdiutil create -size "4M" -type UDIF "${IMAGE_FILE}"
+    # hdiutil attach -nomount "${IMAGE_FILE}.dmg"
+    # diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1
+    # diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "Case-sensitive APFS" SingleVolume
 
-	create_test_file_entries "/Volumes/SingleVolume"
+    create_test_file_entries "/Volumes/SingleVolume"
 
-	# Create additional attributes
-	touch /Volumes/SingleVolume/testdir1/many_xattrs
+    # Create additional attributes
+    touch /Volumes/SingleVolume/testdir1/many_xattrs
 
-	for NUMBER in `seq 1 ${NUMBER_OF_ATTRIBUTES}`
-	do
-		xattr -w "myxattr${NUMBER}" "Extended attribute: ${NUMBER}" /Volumes/SingleVolume/testdir1/many_xattrs
-	done
+    for NUMBER in `seq 1 ${NUMBER_OF_ATTRIBUTES}`
+    do
+        xattr -w "myxattr${NUMBER}" "Extended attribute: ${NUMBER}" /Volumes/SingleVolume/testdir1/many_xattrs
+    done
 
-	detach_image "${IMAGE_FILE}.dmg"
+    detach_image "${IMAGE_FILE}.dmg"
 done
 
 exit ${EXIT_SUCCESS}

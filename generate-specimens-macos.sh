@@ -27,23 +27,23 @@ MAXIMUM_VERSION=`echo "${MAJOR_VERSION} 10" | tr ' ' '\n' | sed 's/[.]//' | sort
 
 if test "${MAXIMUM_VERSION}" == "10"
 then
-	MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`
+    MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`
 
-	if test "${MINIMUM_VERSION}" != "1013"
-	then
-		echo "Unsupported MacOS version: ${MACOS_VERSION}"
+    if test "${MINIMUM_VERSION}" != "1013"
+    then
+        echo "Unsupported MacOS version: ${MACOS_VERSION}"
 
-		exit ${EXIT_FAILURE}
-	fi
+        exit ${EXIT_FAILURE}
+    fi
 fi
 
 SPECIMENS_PATH="specimens/${MACOS_VERSION}"
 
 if test -d ${SPECIMENS_PATH}
 then
-	echo "Specimens directory: ${SPECIMENS_PATH} already exists."
+    echo "Specimens directory: ${SPECIMENS_PATH} already exists."
 
-	exit ${EXIT_FAILURE}
+    exit ${EXIT_FAILURE}
 fi
 
 mkdir -p ${SPECIMENS_PATH}
