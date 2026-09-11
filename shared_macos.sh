@@ -98,7 +98,7 @@ create_test_file_entries()
     xattr -w mylargexattr "${LARGE_XATTR_DATA}" ${MOUNT_POINT}/testdir1/large_xattr
 
     # Create a file that uses HFS+ compression (decmpfs)
-    if test -x ${AFSCTOOL}
+    if test -x "${AFSCTOOL}"
     then
         # Create a file that uses HFS+ compression (decmpfs) compression method 3
         echo "My compressed file" > ${MOUNT_POINT}/testdir1/compressed1
