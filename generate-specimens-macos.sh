@@ -153,14 +153,21 @@ detach_image "${IMAGE_FILE}.dmg"
 
 IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume_encrypted"
 
-hdiutil create -fs 'APFS' -size "4M" -type UDIF -volname SingleVolume "${IMAGE_FILE}"
-hdiutil attach "${IMAGE_FILE}.dmg"
+hdiutil create -layout GPTSPUD -size "4M" -type UDIF "${IMAGE_FILE}"
+
+OUTPUT=$(hdiutil attach "${IMAGE_FILE}.dmg" -nomount -noautoopen -nobrowse)
+DISK_DEVICE=$(echo "${OUTPUT}" | awk 'END {print $1}')
+
+OUTPUT=$(diskutil apfs createContainer "${DISK_DEVICE}")
+CONTAINER_DEVICE=$(echo "${OUTPUT}" | awk -F': ' '/Disk from APFS operation/ {print $2}' | xargs)
+
+echo -n APFStest | diskutil apfs addVolume "${CONTAINER_DEVICE}" APFS SingleVolume -stdinpassphrase
 
 # For older versions of hdiutil:
 # hdiutil create -size "4M" -type UDIF "${IMAGE_FILE}"
 # hdiutil attach -nomount "${IMAGE_FILE}.dmg"
 # diskutil apfs createContainer disk${CONTAINER_DEVICE_NUMBER}s1
-# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -passphrase test
+# diskutil apfs addVolume disk${VOLUME_DEVICE_NUMBER} "APFS" SingleVolume -passphrase APFStest
 
 create_test_file_entries "/Volumes/SingleVolume"
 
