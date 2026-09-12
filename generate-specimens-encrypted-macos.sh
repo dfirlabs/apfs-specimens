@@ -18,16 +18,16 @@ assert_availability_binary mkfifo
 assert_availability_binary mknod
 assert_availability_binary sw_vers
 
-MACOS_VERSION=`sw_vers -productVersion`
-SHORT_VERSION=`echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*[.][0-9][0-9]*\).*$/\1/'`
-MAJOR_VERSION=`echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*\).*$/\1/'`
+MACOS_VERSION=$(sw_vers -productVersion)
+SHORT_VERSION=$(echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*[.][0-9][0-9]*\).*$/\1/')
+MAJOR_VERSION=$(echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*\).*$/\1/')
 
 # Note that versions of Mac OS before 10.13 do not support "sort -V"
-MAXIMUM_VERSION=`echo "${MAJOR_VERSION} 10" | tr ' ' '\n' | sed 's/[.]//' | sort -rn | head -n 1`
+MAXIMUM_VERSION=$(echo "${MAJOR_VERSION} 10" | tr ' ' '\n' | sed 's/[.]//' | sort -rn | head -n 1)
 
 if test "${MAXIMUM_VERSION}" == "10"
 then
-    MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`
+    MINIMUM_VERSION=$(echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1)
 
     if test "${MINIMUM_VERSION}" != "1013"
     then
@@ -39,14 +39,14 @@ fi
 
 SPECIMENS_PATH="specimens/${MACOS_VERSION}-encrypted"
 
-if test -d ${SPECIMENS_PATH}
+if test -d "${SPECIMENS_PATH}"
 then
     echo "Specimens directory: ${SPECIMENS_PATH} already exists."
 
     exit ${EXIT_FAILURE}
 fi
 
-mkdir -p ${SPECIMENS_PATH}
+mkdir -p "${SPECIMENS_PATH}"
 
 set -e
 
@@ -77,14 +77,15 @@ attach_image()
     # not take effect, and the "sed" that ends the pipeline below exits with 0
     # even for empty input, so a failing attach would otherwise yield an empty
     # device and an exit status of 0.
-    if ! ATTACH_OUTPUT=`hdiutil attach "${IMAGE_PATH}" -nobrowse`
+    if ! ATTACH_OUTPUT=$(hdiutil attach "${IMAGE_PATH}" -nobrowse)
     then
         echo "Unable to attach: ${IMAGE_PATH}." >&2
 
         return 1
     fi
 
-    PHYSICAL_STORES=`echo "${ATTACH_OUTPUT}" | grep 'Apple_APFS' | sed 's?^/dev/??;s?[ 	].*$??'`
+    # Note that the sed contains a space and a tab
+    PHYSICAL_STORES=$(echo "${ATTACH_OUTPUT}" | grep 'Apple_APFS' | sed 's?^/dev/??;s?[ 	].*$??')
 
     if test -z "${PHYSICAL_STORES}"
     then
@@ -93,7 +94,7 @@ attach_image()
         return 1
     fi
 
-    NUMBER_OF_PHYSICAL_STORES=`echo "${PHYSICAL_STORES}" | wc -l | tr -d ' '`
+    NUMBER_OF_PHYSICAL_STORES=$(echo "${PHYSICAL_STORES}" | wc -l | tr -d ' ')
 
     if test "${NUMBER_OF_PHYSICAL_STORES}" -ne 1
     then
@@ -128,7 +129,7 @@ create_encrypted_volume()
     local NUMBER_OF_CONTAINER_DEVICES
     local NUMBER_OF_VOLUME_DEVICES
 
-    if ! PHYSICAL_STORE=`attach_image "${IMAGE_FILE}.dmg"`
+    if ! PHYSICAL_STORE=$(attach_image "${IMAGE_FILE}.dmg")
     then
         exit ${EXIT_FAILURE}
     fi
@@ -139,7 +140,7 @@ create_encrypted_volume()
     # without reaching the preceding container. The number of matches is
     # checked explicitly below rather than assuming the window selected
     # exactly one.
-    CONTAINER_DEVICE=`diskutil apfs list | grep -B 10 "${PHYSICAL_STORE}" | grep 'APFS Container Reference:' | sed 's?^.*: *??'`
+    CONTAINER_DEVICE=$(diskutil apfs list | grep -B 10 "${PHYSICAL_STORE}" | grep 'APFS Container Reference:' | sed 's?^.*: *??')
 
     # Note that the pipelines here end in "sed", which exits with 0 for empty
     # input, so the devices are checked explicitly rather than relying on
@@ -153,7 +154,7 @@ create_encrypted_volume()
         exit ${EXIT_FAILURE}
     fi
 
-    NUMBER_OF_CONTAINER_DEVICES=`echo "${CONTAINER_DEVICE}" | wc -l | tr -d ' '`
+    NUMBER_OF_CONTAINER_DEVICES=$(echo "${CONTAINER_DEVICE}" | wc -l | tr -d ' ')
 
     if test "${NUMBER_OF_CONTAINER_DEVICES}" -ne 1
     then
@@ -162,7 +163,8 @@ create_encrypted_volume()
         exit ${EXIT_FAILURE}
     fi
 
-    VOLUME_DEVICE=`diskutil list "${CONTAINER_DEVICE}" | grep "${VOLUME_NAME}" | sed 's?^.*[ 	]\([a-z0-9]*\)$?\1?'`
+    # Note that the sed contains a space and a tab
+    VOLUME_DEVICE=$(diskutil list "${CONTAINER_DEVICE}" | grep "${VOLUME_NAME}" | sed 's?^.*[ 	]\([a-z0-9]*\)$?\1?')
 
     if test -z "${VOLUME_DEVICE}"
     then
@@ -171,7 +173,7 @@ create_encrypted_volume()
         exit ${EXIT_FAILURE}
     fi
 
-    NUMBER_OF_VOLUME_DEVICES=`echo "${VOLUME_DEVICE}" | wc -l | tr -d ' '`
+    NUMBER_OF_VOLUME_DEVICES=$(echo "${VOLUME_DEVICE}" | wc -l | tr -d ' ')
 
     if test "${NUMBER_OF_VOLUME_DEVICES}" -ne 1
     then
@@ -243,12 +245,12 @@ create_encrypted_volume()
     local CONVERT_DEADLINE
     local APPEAR_DEADLINE
 
-    CONVERT_DEADLINE=$(( `date +%s` + 900 ))
-    APPEAR_DEADLINE=$(( `date +%s` + 30 ))
+    CONVERT_DEADLINE=$(( $(date +%s) + 900 ))
+    APPEAR_DEADLINE=$(( $(date +%s) + 30 ))
 
     while true
     do
-        if ! APFS_LIST_OUTPUT=`diskutil apfs list ${CONTAINER_DEVICE}`
+        if ! APFS_LIST_OUTPUT=$(diskutil apfs list "${CONTAINER_DEVICE}")
         then
             echo "Unable to determine encryption progress of: ${CONTAINER_DEVICE}."
 
@@ -259,7 +261,7 @@ create_encrypted_volume()
         then
             PROGRESS_SEEN=1
 
-            if test "`date +%s`" -ge ${CONVERT_DEADLINE}
+            if test "$(date +%s)" -ge ${CONVERT_DEADLINE}
             then
                 echo "Encryption did not complete within timeout."
 
@@ -277,7 +279,7 @@ create_encrypted_volume()
             break
         fi
 
-        if test "`date +%s`" -ge ${APPEAR_DEADLINE}
+        if test "$(date +%s)" -ge ${APPEAR_DEADLINE}
         then
             if echo "${APFS_LIST_OUTPUT}" | grep 'FileVault:' | grep -q 'Yes'
             then
@@ -298,7 +300,7 @@ create_encrypted_volume()
     # detached.
     local HDIUTIL_INFO
 
-    if ! HDIUTIL_INFO=`hdiutil info`
+    if ! HDIUTIL_INFO=$(hdiutil info)
     then
         echo "Unable to determine if: ${IMAGE_FILE}.dmg is still attached."
 

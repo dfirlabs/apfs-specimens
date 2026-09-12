@@ -1,0 +1,5 @@
+shell=bash
+severity=warning
+disable=SC2001
+disable=SC2181
+disable=SC2317

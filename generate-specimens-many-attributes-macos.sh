@@ -18,16 +18,16 @@ assert_availability_binary mkfifo
 assert_availability_binary mknod
 assert_availability_binary sw_vers
 
-MACOS_VERSION=`sw_vers -productVersion`
-SHORT_VERSION=`echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*[.][0-9][0-9]*\).*$/\1/'`
-MAJOR_VERSION=`echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*\).*$/\1/'`
+MACOS_VERSION=$(sw_vers -productVersion)
+SHORT_VERSION=$(echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*[.][0-9][0-9]*\).*$/\1/')
+MAJOR_VERSION=$(echo "${MACOS_VERSION}" | sed 's/^\([0-9][0-9]*\).*$/\1/')
 
 # Note that versions of Mac OS before 10.13 do not support "sort -V"
-MAXIMUM_VERSION=`echo "${MAJOR_VERSION} 10" | tr ' ' '\n' | sed 's/[.]//' | sort -rn | head -n 1`
+MAXIMUM_VERSION=$(echo "${MAJOR_VERSION} 10" | tr ' ' '\n' | sed 's/[.]//' | sort -rn | head -n 1)
 
 if test "${MAXIMUM_VERSION}" == "10"
 then
-    MINIMUM_VERSION=`echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1`
+    MINIMUM_VERSION=$(echo "${SHORT_VERSION} 10.13" | tr ' ' '\n' | sed 's/[.]//' | sort -n | head -n 1)
 
     if test "${MINIMUM_VERSION}" != "1013"
     then
@@ -39,22 +39,23 @@ fi
 
 SPECIMENS_PATH="specimens/${MACOS_VERSION}-many-attributes"
 
-if test -d ${SPECIMENS_PATH}
+if test -d "${SPECIMENS_PATH}"
 then
     echo "Specimens directory: ${SPECIMENS_PATH} already exists."
 
     exit ${EXIT_FAILURE}
 fi
 
-mkdir -p ${SPECIMENS_PATH}
+mkdir -p "${SPECIMENS_PATH}"
 
 set -e
 
-# DEVICE_NUMBER=`diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/disk??;s? .*$??'`
+# DEVICE_NUMBER=$(diskutil list | grep -e '^/dev/disk' | tail -n 1 | sed 's?^/dev/disk??;s? .*$??')
 
-# CONTAINER_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 1 ))
-# VOLUME_DEVICE_NUMBER=$(( ${DEVICE_NUMBER} + 2 ))
+# CONTAINER_DEVICE_NUMBER=$(( DEVICE_NUMBER + 1 ))
+# VOLUME_DEVICE_NUMBER=$(( DEVICE_NUMBER + 2 ))
 
+# shellcheck disable=SC2043
 for NUMBER_OF_ATTRIBUTES in 100
 do
     IMAGE_FILE="${SPECIMENS_PATH}/apfs_single_volume_${NUMBER_OF_ATTRIBUTES}_attributes"
@@ -74,7 +75,7 @@ do
     # Create additional attributes
     touch /Volumes/SingleVolume/testdir1/many_xattrs
 
-    for NUMBER in `seq 1 ${NUMBER_OF_ATTRIBUTES}`
+    for NUMBER in $(seq 1 ${NUMBER_OF_ATTRIBUTES})
     do
         xattr -w "myxattr${NUMBER}" "Extended attribute: ${NUMBER}" /Volumes/SingleVolume/testdir1/many_xattrs
     done
@@ -98,7 +99,7 @@ do
     # Create additional attributes
     touch /Volumes/SingleVolume/testdir1/many_xattrs
 
-    for NUMBER in `seq 1 ${NUMBER_OF_ATTRIBUTES}`
+    for NUMBER in $(seq 1 ${NUMBER_OF_ATTRIBUTES})
     do
         xattr -w "myxattr${NUMBER}" "Extended attribute: ${NUMBER}" /Volumes/SingleVolume/testdir1/many_xattrs
     done
