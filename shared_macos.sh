@@ -5,7 +5,10 @@
 EXIT_SUCCESS=0
 EXIT_FAILURE=1
 
-AFSCTOOL=$(which afsctool)
+# `|| true` so a missing optional afsctool cannot abort a caller that sources this file
+# with errexit already enabled: a failing command substitution in an assignment is fatal
+# there, and the probe writes nothing, so the script would die here with no message.
+AFSCTOOL=$(command -v afsctool || true)
 
 # Checks the availability of a binary and exits if not available.
 #
