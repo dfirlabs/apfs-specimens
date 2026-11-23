@@ -6,6 +6,11 @@
 EXIT_SUCCESS=0
 EXIT_FAILURE=1
 
+# Note that this script calls detach_image, which is defined in shared_macos.sh
+# and was not sourced here, so a run reached the end of its work and then died
+# with "detach_image: command not found", leaving the image attached.
+source ./shared_macos.sh
+
 create_test_file_entries_unicode()
 {
     MOUNT_POINT=$1
@@ -72,6 +77,30 @@ fi
 if test -d "${SPECIMENS_PATH}"
 then
     echo "Specimens directory: ${SPECIMENS_PATH} already exists."
+
+    exit ${EXIT_FAILURE}
+fi
+
+# Check the Python 2 interpreter the filename construction below needs, before
+# anything is created. This runs above "mkdir -p" deliberately: a failure here
+# that had already created the directory would make the next run stop at
+# "already exists" and report the wrong problem.
+#
+# Note that the construction uses "str.decode", which exists only in Python 2,
+# and macOS has not shipped Python 2 since 12.3. Without this check the
+# interpreter fails once per character, the filename comes back empty, "touch"
+# fails on it, and the script reports "Unsupported: 0x..." for every character
+# it was asked to create -- naming the character rather than the interpreter.
+#
+if ! python -c "''.decode('hex')" > /dev/null 2>&1
+then
+    echo "This script needs a Python 2 interpreter on the PATH as \"python\"."
+    echo "The filenames are built with str.decode('hex'), which Python 3 does not have,"
+    echo "and macOS has not shipped Python 2 since 12.3."
+    echo ""
+    echo "Install a Python 2 interpreter, or port the two \"python -c\" lines below to"
+    echo "Python 3 before running this."
+    echo ""
 
     exit ${EXIT_FAILURE}
 fi

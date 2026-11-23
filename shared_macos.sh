@@ -88,7 +88,12 @@ create_test_file_entries()
     ln -s "${MOUNT_POINT}/forward:slash" "${MOUNT_POINT}/file_symboliclink2"
 
     # Create a file with a resource fork with content
-    touch "${MOUNT_POINT}/testdir1/resourcefork1"
+    #
+    # Note that FILE_NAME is set here rather than reusing whatever it happened
+    # to hold: the fork is written through it, so leaving it unset writes the
+    # fork onto the previous file instead of this one.
+    FILE_NAME="${MOUNT_POINT}/testdir1/resourcefork1"
+    touch "${FILE_NAME}"
     echo "My resource fork" > "${FILE_NAME}/..namedfork/rsrc"
 
     # Create a file with an extended attribute with content
@@ -189,16 +194,32 @@ detach_image()
 
     for ((attempt=1; attempt<=5; attempt++))
     do
-        hdiutil detach "${DISK_NODE}" -force 2>/dev/null
-
-        if test $? -eq 0
+        # Note that the detach is the "if" condition rather than a bare command
+        # followed by a test: the status has to decide the return value, and
+        # "set -e" below would otherwise become the last command run and supply
+        # a 0 of its own whether or not anything detached.
+        if hdiutil detach "${DISK_NODE}" -force
         then
-            break
+            set -e
+
+            return 0
         fi
-        echo ""
-        echo "${DISK_NODE} busy, waiting 10 seconds."
-        sleep 10
+
+        if test ${attempt} -lt 5
+        then
+            echo ""
+            echo "${DISK_NODE} busy, waiting 10 seconds before attempt $(( attempt + 1 )) of 5."
+            sleep 10
+        fi
     done
 
     set -e
+
+    echo ""
+    echo "Unable to detach: ${DISK_NODE} after 5 attempts."
+    echo "Detach it by hand before the next run, for example with:"
+    echo "    hdiutil detach ${DISK_NODE} -force"
+    echo ""
+
+    return 1
 }
